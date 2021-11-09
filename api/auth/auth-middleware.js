@@ -23,7 +23,7 @@ const restricted = (req, res, next) => {
 };
 
 const only = (role_name) => (req, res, next) => {
-  if (req.decodedJwt.role !== role_name) {
+  if (req.decodedJwt.role_name !== role_name) {
     next({
       status: 403,
       message: "This is not for you",
@@ -49,6 +49,7 @@ const validateRoleName = (req, res, next) => {
   const roleName = role_name.trim();
   if (!roleName) {
     req.role_name = "student";
+    next();
   }
   if (roleName === "admin") {
     next({ status: 422, message: "Role name can not be admin" });
