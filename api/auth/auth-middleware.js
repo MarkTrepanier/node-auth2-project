@@ -5,7 +5,6 @@ const User = require("../users/users-model.js");
 
 const restricted = (req, res, next) => {
   const token = req.headers.authorization;
-  console.log(token);
 
   if (!token) {
     return { status: 401, message: "token required" };
@@ -18,15 +17,18 @@ const restricted = (req, res, next) => {
       });
     }
     req.decodedJwt = decoded;
+    console.log("decoded");
     console.log(decoded);
     next();
   });
 };
 
 const only = (role_name) => (req, res, next) => {
-  /*
-    Pull the decoded token from the req object, to avoid verifying it again!
-  */
+  console.log("this");
+  console.log(req.decodedJwt.role);
+
+  console.log(req.decodedJwt.role);
+  console.log(role_name);
   if (req.decodedJwt.role !== role_name) {
     next({
       status: 403,
