@@ -18,17 +18,11 @@ const restricted = (req, res, next) => {
     }
     req.decodedJwt = decoded;
     console.log("decoded");
-    console.log(decoded);
     next();
   });
 };
 
 const only = (role_name) => (req, res, next) => {
-  console.log("this");
-  console.log(req.decodedJwt.role);
-
-  console.log(req.decodedJwt.role);
-  console.log(role_name);
   if (req.decodedJwt.role !== role_name) {
     next({
       status: 403,
@@ -40,13 +34,6 @@ const only = (role_name) => (req, res, next) => {
 };
 
 const checkUsernameExists = async (req, res, next) => {
-  /*
-    If the username in req.body does NOT exist in the database
-    status 401
-    {
-      "message": "Invalid credentials"
-    }
-  */
   const { username } = req.body;
   const [user] = await User.findBy({ username });
   if (!user) {
@@ -58,6 +45,19 @@ const checkUsernameExists = async (req, res, next) => {
 };
 
 const validateRoleName = (req, res, next) => {
+  const { role_name } = req.body;
+  const roleName = role_name.trim();
+  if (!roleName) {
+    req.role_name = "student";
+  }
+  if (roleName === "admin") {
+    next({ status: 422, message: "Role name can not be admin" });
+  }
+  if (roleName.length > 32) {
+    next({ status: 422, message: "Role name can not be longer than 32 chars" });
+  }
+  req.role_name = roleName;
+  next();
   /*
     If the role_name in the body is valid, set req.role_name to be the trimmed string and proceed.
 

@@ -3,8 +3,29 @@ const { checkUsernameExists, validateRoleName } = require("./auth-middleware");
 const { JWT_SECRET } = require("../secrets"); // use this secret!
 const bcrypt = require("bcryptjs");
 const buildToken = require("./buildToken");
+const User = require("../users/users-model");
 
 router.post("/register", validateRoleName, (req, res, next) => {
+  const newUser = req.body;
+
+  //bcrypt
+
+  const rounds = process.env.BCRYPT_ROUNDS || 6;
+  const hash = bcrypt.hashSync(newUser.password, rounds);
+  newUser.password = hash;
+  newUser.role_name = req.role_name;
+  User.add(newUser)
+    .then((resp) => {
+      res.status(201).json({
+        user_id: resp.user_id,
+        username: resp.username,
+        rolename: resp.role_name,
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
+
   /**
     [POST] /api/auth/register { "username": "anna", "password": "1234", "role_name": "angel" }
 
@@ -34,25 +55,6 @@ router.post("/login", checkUsernameExists, async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-  /**
-    [POST] /api/auth/login { "username": "sue", "password": "1234" }
-
-    response:
-    status 200
-    {
-      "message": "sue is back!",
-      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ETC.ETC"
-    }
-
-    The token must expire in one day, and must provide the following information
-    in its payload:
-
-    {
-      "subject"  : 1       // the user_id of the authenticated user
-      "username" : "bob"   // the username of the authenticated user
-      "role_name": "admin" // the role of the authenticated user
-    }
-   */
 });
 
 module.exports = router;
