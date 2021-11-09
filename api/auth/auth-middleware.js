@@ -1,6 +1,7 @@
 const { default: jwtDecode } = require("jwt-decode");
 const { JWT_SECRET } = require("../secrets"); // use this secret!
 const jwt = require("jsonwebtoken");
+const User = require("../users/users-model.js");
 
 const restricted = (req, res, next) => {
   const token = req.headers.authorization;
@@ -44,6 +45,14 @@ const checkUsernameExists = (req, res, next) => {
       "message": "Invalid credentials"
     }
   */
+  const { username } = req.body;
+  const [user] = User.findBy({ username });
+  if (!user) {
+    next({ status: 401, message: "invalid credentials" });
+  } else {
+    req.user = user;
+    next();
+  }
 };
 
 const validateRoleName = (req, res, next) => {
