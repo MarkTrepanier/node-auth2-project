@@ -7,7 +7,7 @@ const restricted = (req, res, next) => {
   const token = req.headers.authorization;
 
   if (!token) {
-    return { status: 401, message: "token required" };
+    next({ status: 401, message: "token required" });
   }
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
@@ -17,7 +17,6 @@ const restricted = (req, res, next) => {
       });
     }
     req.decodedJwt = decoded;
-    console.log("decoded");
     next();
   });
 };

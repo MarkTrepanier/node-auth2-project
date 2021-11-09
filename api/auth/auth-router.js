@@ -19,7 +19,7 @@ router.post("/register", validateRoleName, (req, res, next) => {
       res.status(201).json({
         user_id: resp.user_id,
         username: resp.username,
-        rolename: resp.role_name,
+        role_name: resp.role_name,
       });
     })
     .catch((err) => {
