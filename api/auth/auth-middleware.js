@@ -46,11 +46,8 @@ const checkUsernameExists = async (req, res, next) => {
 
 const validateRoleName = (req, res, next) => {
   const { role_name } = req.body;
-  const roleName = role_name.trim();
-  if (!roleName) {
-    req.role_name = "student";
-    next();
-  }
+  const roleName = !role_name ? "student" : role_name.trim();
+
   if (roleName === "admin") {
     next({ status: 422, message: "Role name can not be admin" });
   }
